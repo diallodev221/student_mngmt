@@ -1,5 +1,7 @@
 package com.diallodeveloper.studentmngmt.student;
 
+import com.diallodeveloper.studentmngmt.student.exception.BadRequestException;
+import com.diallodeveloper.studentmngmt.student.exception.StudentNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,14 +19,27 @@ public class StudentService {
 
     public void addStudent(Student student) {
         boolean existsEmail = studentRepository
-                .selectExistsEmail(student.getEmail());
+                .existsByEmail(student.getEmail());
         if (existsEmail) {
-            throw new IllegalArgumentException("Student " + student.getEmail() + " is existed");
+            throw new BadRequestException("Student " + student.getEmail() + " taken");
         }
         studentRepository.save(student);
     }
 
     public void deleteStudent(Long id) {
+        if (studentRepository.existsById(id)) {
+            throw new StudentNotFoundException("Student with id "+ id + " not exist");
+        }
         studentRepository.deleteById(id);
+    }
+
+    public void updateStudent(Student student) {
+        studentRepository.findStudentById(student.getId())
+                .map(s -> {
+                    s.setName(student.getName());
+                    s.setEmail(student.getEmail());
+                    s.setGender(student.getGender());
+                    return s;
+                }).orElseThrow(() -> new StudentNotFoundException("Student with id {} not found"));
     }
 }

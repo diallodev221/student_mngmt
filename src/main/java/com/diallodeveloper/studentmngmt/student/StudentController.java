@@ -24,6 +24,11 @@ public class StudentController implements ApiStudent{
     }
 
     @Override
+    public void updateStudent(Student student) {
+        studentService.updateStudent(student);
+    }
+
+    @Override
     public void deleteStudent(Long id) {
         studentService.deleteStudent(id);
     }
